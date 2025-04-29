@@ -76,7 +76,10 @@ function checkVeganStatus(barcode) {
         resultName.textContent = product.product_name || 'No name available';
         resultImage.src = product.image_url || '';
         const ingredientsText = product.ingredients_text || '';
-        productIngredients.textContent = ingredientsText || 'No ingredients listed';
+        productIngredients.innerHTML =
+        highlightMatches(ingredientsText, [...nonVeganPatterns, ...uncertainPatterns]) ||
+        'No ingredients listed';
+
 
         const tags = product.ingredients_analysis_tags || [];
         let message = '';
@@ -118,6 +121,16 @@ function checkVeganStatus(barcode) {
         showModal('❌ Product not found');
       }
     })
+
+    function highlightMatches(text, patterns) {
+  if (!text) return '';
+  let marked = text;
+  patterns.forEach(rx => {
+    marked = marked.replace(rx, match => `<mark>${match}</mark>`);
+  });
+  return marked;
+}
+
     .catch(error => {
       console.error('API Error:', error);
       loadingSpinner.style.display = 'none';
