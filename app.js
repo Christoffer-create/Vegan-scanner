@@ -13,29 +13,43 @@ const loadingSpinner = document.getElementById('loading-spinner');
 const html5QrCode = new Html5Qrcode("reader");
 const config = { fps: 10, qrbox: 250 };
 
-const uncertainIngredients = [
-  "monoglycerides", "diglycerides", "natural flavors", "lanolin",
-  "omega-3", "lecithin", "vitamin d3"
+document.getElementById('submit-barcode').addEventListener('click', () => {
+  const code = document.getElementById('manual-barcode').value.trim();
+  if (code) checkVeganStatus(code);
+});
+
+const uncertainPatterns = [
+  /\bd3\b/i,
+  /\bmonoglyceride(s)?\b/i,
+  /\bdiglyceride(s)?\b/i,
+  /\bnatural flavors?\b/i,
+  /\blanolin\b/i,
+  /\bomega[- ]?3\b/i,
+  /\blecithin\b/i,
+  /\bvitamin[- ]?d3\b/i
 ];
 
-const nonVeganIngredients = [
-  "milk", "honey", "egg", "gelatin", "lard", "casein", "whey", "shellac",
-  "carmine", "anchovy", "anchovies", "fish", "meat", "chicken", "beef",
-  "pork", "crustacean", "shellfish", "butter", "cream", "cheese", "yogurt",
-  "albumin", "cochineal", "lactose", "squid", "octopus", "snail",
-  "broth", "chitosan", "isinglass", "rennet", "ghee", "suet", "tallow",
-  "civet", "propolis", "royal jelly", "bee pollen", "blood", "caviar",
-  "duck", "goose", "venison", "elk", "game", "egg lecithin"
+
+const nonVeganPatterns = [
+  /\bmilk\b/i, /\bhoney\b/i, /\begg\b/i, /\bgelatin\b/i, /\blard\b/i, /\bcasein\b/i,
+  /\bwhey\b/i, /\bshellac\b/i, /\bcarmine\b/i, /\banchovies?\b/i, /\bfish\b/i,
+  /\bmeat\b/i, /\bchicken\b/i, /\bbeef\b/i, /\bpork\b/i, /\bcrustacean\b/i,
+  /\bshellfish\b/i, /\bbutter\b/i, /\bcream\b/i, /\bcheese\b/i, /\byogurt\b/i,
+  /\balbumin\b/i, /\bcochineal\b/i, /\blactose\b/i, /\bsquid\b/i, /\boctopus\b/i,
+  /\bsnail\b/i, /\bbroth\b/i, /\bchitosan\b/i, /\bisinglass\b/i, /\brennet\b/i,
+  /\bghee\b/i, /\bsuet\b/i, /\btallow\b/i, /\bcivet\b/i, /\bpropolis\b/i,
+  /\broyal jelly\b/i, /\bbee pollen\b/i, /\bblood\b/i, /\bcaviar\b/i, /\bduck\b/i,
+  /\bgoose\b/i, /\bvenison\b/i, /\belk\b/i, /\bgame\b/i, /\begg lecithin\b/i
 ];
 
-function findMatchedKeywords(text, keywords) {
-  const matches = [];
-  if (!text) return matches;
-  const lower = text.toLowerCase();
-  keywords.forEach(word => {
-    if (lower.includes(word)) matches.push(word);
-  });
-  return matches;
+function findMatchedRegex(text, patterns) {
+  if (!text) return [];
+  return patterns
+    .filter(rx => rx.test(text))
+    .map(rx => {
+      const match = text.match(rx);
+      return match ? match[0] : rx.source;
+    });
 }
 
 function showModal(message) {
@@ -76,8 +90,8 @@ function checkVeganStatus(barcode) {
           veganStatus.style.color = 'red';
           message = '❌ This product is Not Vegan (confirmed by OpenFoodFacts)';
         } else {
-          const nonVeganMatches = findMatchedKeywords(ingredientsText, nonVeganIngredients);
-          const uncertainMatches = findMatchedKeywords(ingredientsText, uncertainIngredients);
+            const nonVeganMatches = findMatchedRegex(ingredientsText, nonVeganPatterns);
+            const uncertainMatches = findMatchedRegex(ingredientsText, uncertainPatterns);
 
           if (nonVeganMatches.length > 0) {
             veganStatus.textContent = `❌ Not Vegan (contains: ${nonVeganMatches.join(', ')})`;
