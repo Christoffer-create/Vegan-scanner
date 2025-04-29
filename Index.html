@@ -5,44 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vegan Barcode Scanner</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-<style>
-  #loading-spinner {
-    display: none;
-    font-size: 1.1rem;
-    font-style: italic;
-    color: #888;
-    margin-top: 1rem;
-  }
-  body.dark-mode #loading-spinner {
-    color: #ccc;
-  }
-  #product-ingredients mark {
-    background-color: yellow;
-    color: black;
-    font-weight: bold;
-  }
-</style>
+  <style>
+    #loading-spinner {
+      display: none;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: #888;
+      margin-top: 1rem;
+    }
+    body.dark-mode #loading-spinner {
+      color: #ccc;
+    }
+    #product-ingredients mark.uncertain {
+      background-color: orange;
+      color: white;
+      font-weight: bold;
+    }
+    #product-ingredients mark.non-vegan {
+      background-color: red;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
   <h1>Vegan Barcode Scanner</h1>
-  <label id="dark-mode-label"><input type="checkbox" id="toggle-dark" /> <span id="dark-mode-icon">🌙</span> Dark Mode</label>
+  <label id="dark-mode-label">
+    <input type="checkbox" id="toggle-dark" />
+    <span id="dark-mode-icon">🌙</span> Dark Mode
+  </label>
   <div id="reader" class="scanner"></div>
+
   <div id="manual-input">
     <p><strong>Can't use the camera?</strong></p>
     <input type="text" id="manual-barcode" placeholder="Enter barcode manually" />
     <button id="submit-barcode">Check Product</button>
-    <script>
-      document.getElementById('submit-barcode').addEventListener('click', () => {
-        const input = document.getElementById('manual-barcode');
-        const code = input.value.trim();
-        if (code) {
-          checkVeganStatus(code);
-          input.value = ''; // Clear input after check
-        }
-      });
-    </script>
   </div>
+
   <div id="result">
     <div id="loading-spinner">⏳ Loading product data...</div>
     <p id="product-name"></p>
@@ -58,6 +59,7 @@
       <button id="modal-close">OK</button>
     </div>
   </div>
+
   <script src="app.js"></script>
 </body>
 </html>
