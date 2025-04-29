@@ -61,6 +61,15 @@ modalClose.addEventListener('click', () => {
   modal.classList.add('hidden');
 });
 
+function highlightMatches(text, patterns, cssClass) {
+  if (!text) return '';
+  let result = text;
+  patterns.forEach(rx => {
+    result = result.replace(rx, match => `<mark class="${cssClass}">${match}</mark>`);
+  });
+  return result;
+}
+
 function checkVeganStatus(barcode) {
   loadingSpinner.style.display = 'block';
 
@@ -77,8 +86,12 @@ function checkVeganStatus(barcode) {
         resultImage.src = product.image_url || '';
         const ingredientsText = product.ingredients_text || '';
         productIngredients.innerHTML =
-        highlightMatches(ingredientsText, [...nonVeganPatterns, ...uncertainPatterns]) ||
-        'No ingredients listed';
+        highlightMatches(
+         highlightMatches(ingredientsText, nonVeganPatterns, 'non-vegan'),
+          uncertainPatterns,
+          'uncertain'
+          ) || 'No ingredients listed';
+
 
 
         const tags = product.ingredients_analysis_tags || [];
@@ -121,16 +134,6 @@ function checkVeganStatus(barcode) {
         showModal('❌ Product not found');
       }
     })
-
-    function highlightMatches(text, patterns) {
-  if (!text) return '';
-  let marked = text;
-  patterns.forEach(rx => {
-    marked = marked.replace(rx, match => `<mark>${match}</mark>`);
-  });
-  return marked;
-}
-
     .catch(error => {
       console.error('API Error:', error);
       loadingSpinner.style.display = 'none';
