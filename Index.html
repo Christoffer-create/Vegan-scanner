@@ -17,12 +17,32 @@
   body.dark-mode #loading-spinner {
     color: #ccc;
   }
+  #product-ingredients mark {
+    background-color: yellow;
+    color: black;
+    font-weight: bold;
+  }
 </style>
 </head>
 <body>
   <h1>Vegan Barcode Scanner</h1>
   <label id="dark-mode-label"><input type="checkbox" id="toggle-dark" /> <span id="dark-mode-icon">🌙</span> Dark Mode</label>
   <div id="reader" class="scanner"></div>
+  <div id="manual-input">
+    <p><strong>Can't use the camera?</strong></p>
+    <input type="text" id="manual-barcode" placeholder="Enter barcode manually" />
+    <button id="submit-barcode">Check Product</button>
+    <script>
+      document.getElementById('submit-barcode').addEventListener('click', () => {
+        const input = document.getElementById('manual-barcode');
+        const code = input.value.trim();
+        if (code) {
+          checkVeganStatus(code);
+          input.value = ''; // Clear input after check
+        }
+      });
+    </script>
+  </div>
   <div id="result">
     <div id="loading-spinner">⏳ Loading product data...</div>
     <p id="product-name"></p>
