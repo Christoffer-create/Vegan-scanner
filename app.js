@@ -3,24 +3,19 @@ const resultImage = document.getElementById('product-image');
 const veganStatus = document.getElementById('vegan-status');
 const productIngredients = document.getElementById('product-ingredients');
 const scanAgainBtn = document.getElementById('scan-again');
-
 const modal = document.getElementById('modal');
 const modalMessage = document.getElementById('modal-message');
 const modalClose = document.getElementById('modal-close');
 const darkToggle = document.getElementById('toggle-dark');
 const darkIcon = document.getElementById('dark-mode-icon');
+const loadingSpinner = document.getElementById('loading-spinner');
 
 const html5QrCode = new Html5Qrcode("reader");
 const config = { fps: 10, qrbox: 250 };
 
 const uncertainIngredients = [
-  "monoglycerides",
-  "diglycerides",
-  "natural flavors",
-  "lanolin",
-  "omega-3",
-  "lecithin",
-  "vitamin d3"
+  "monoglycerides", "diglycerides", "natural flavors", "lanolin",
+  "omega-3", "lecithin", "vitamin d3"
 ];
 
 const nonVeganIngredients = [
@@ -53,11 +48,15 @@ modalClose.addEventListener('click', () => {
 });
 
 function checkVeganStatus(barcode) {
+  loadingSpinner.style.display = 'block';
+
   const url = `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`;
 
   fetch(url)
     .then(response => response.json())
     .then(data => {
+      loadingSpinner.style.display = 'none';
+
       if (data.status === 1) {
         const product = data.product;
         resultName.textContent = product.product_name || 'No name available';
@@ -67,7 +66,6 @@ function checkVeganStatus(barcode) {
 
         const tags = product.ingredients_analysis_tags || [];
         let message = '';
-        let matched = [];
 
         if (tags.includes('en:vegan')) {
           veganStatus.textContent = '✅ Vegan';
@@ -108,6 +106,7 @@ function checkVeganStatus(barcode) {
     })
     .catch(error => {
       console.error('API Error:', error);
+      loadingSpinner.style.display = 'none';
       resultName.textContent = 'Error fetching data';
       resultImage.src = '';
       veganStatus.textContent = '';
