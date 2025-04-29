@@ -61,6 +61,10 @@ function startScanner() {
   });
 }
 
+document.getElementById('product-ingredients').textContent =
+  product.ingredients_text || 'No ingredients listed';
+
+
 scanAgainBtn.addEventListener('click', () => {
   resultName.textContent = '';
   resultImage.src = '';
