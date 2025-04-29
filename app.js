@@ -13,11 +13,6 @@ const loadingSpinner = document.getElementById('loading-spinner');
 const html5QrCode = new Html5Qrcode("reader");
 const config = { fps: 10, qrbox: 250 };
 
-document.getElementById('submit-barcode').addEventListener('click', () => {
-  const code = document.getElementById('manual-barcode').value.trim();
-  if (code) checkVeganStatus(code);
-});
-
 const uncertainPatterns = [
   /\bd3\b/i,
   /\bmonoglyceride(s)?\b/i,
@@ -28,7 +23,6 @@ const uncertainPatterns = [
   /\blecithin\b/i,
   /\bvitamin[- ]?d3\b/i
 ];
-
 
 const nonVeganPatterns = [
   /\bmilk\b/i, /\bhoney\b/i, /\begg\b/i, /\bgelatin\b/i, /\blard\b/i, /\bcasein\b/i,
@@ -52,15 +46,6 @@ function findMatchedRegex(text, patterns) {
     });
 }
 
-function showModal(message) {
-  modalMessage.textContent = message;
-  modal.classList.remove('hidden');
-}
-
-modalClose.addEventListener('click', () => {
-  modal.classList.add('hidden');
-});
-
 function highlightMatches(text, patterns, cssClass) {
   if (!text) return '';
   let result = text;
@@ -69,6 +54,15 @@ function highlightMatches(text, patterns, cssClass) {
   });
   return result;
 }
+
+function showModal(message) {
+  modalMessage.textContent = message;
+  modal.classList.remove('hidden');
+}
+
+modalClose.addEventListener('click', () => {
+  modal.classList.add('hidden');
+});
 
 function checkVeganStatus(barcode) {
   loadingSpinner.style.display = 'block';
@@ -83,17 +77,15 @@ function checkVeganStatus(barcode) {
       if (data.status === 1) {
         const product = data.product;
         resultName.textContent = product.product_name || 'No name available';
-        resultImage.src = product.image_url || '';
+
+        if (product.image_url) {
+          resultImage.src = product.image_url;
+          resultImage.style.display = 'block';
+        } else {
+          resultImage.style.display = 'none';
+        }
+
         const ingredientsText = product.ingredients_text || '';
-        productIngredients.innerHTML =
-        highlightMatches(
-         highlightMatches(ingredientsText, nonVeganPatterns, 'non-vegan'),
-          uncertainPatterns,
-          'uncertain'
-          ) || 'No ingredients listed';
-
-
-
         const tags = product.ingredients_analysis_tags || [];
         let message = '';
 
@@ -105,9 +97,21 @@ function checkVeganStatus(barcode) {
           veganStatus.textContent = '❌ Not Vegan';
           veganStatus.style.color = 'red';
           message = '❌ This product is Not Vegan (confirmed by OpenFoodFacts)';
+        } else if (!ingredientsText.trim()) {
+          veganStatus.textContent = '⚠️ Vegan status uncertain (no ingredients listed)';
+          veganStatus.style.color = 'orange';
+          productIngredients.innerHTML = 'No ingredients listed';
+          message = '⚠️ Uncertain - No ingredients listed';
         } else {
-            const nonVeganMatches = findMatchedRegex(ingredientsText, nonVeganPatterns);
-            const uncertainMatches = findMatchedRegex(ingredientsText, uncertainPatterns);
+          const nonVeganMatches = findMatchedRegex(ingredientsText, nonVeganPatterns);
+          const uncertainMatches = findMatchedRegex(ingredientsText, uncertainPatterns);
+
+          productIngredients.innerHTML =
+            highlightMatches(
+              highlightMatches(ingredientsText, nonVeganPatterns, 'non-vegan'),
+              uncertainPatterns,
+              'uncertain'
+            );
 
           if (nonVeganMatches.length > 0) {
             veganStatus.textContent = `❌ Not Vegan (contains: ${nonVeganMatches.join(', ')})`;
@@ -128,7 +132,7 @@ function checkVeganStatus(barcode) {
         scanAgainBtn.style.display = 'inline-block';
       } else {
         resultName.textContent = 'Product not found';
-        resultImage.src = '';
+        resultImage.style.display = 'none';
         veganStatus.textContent = '';
         productIngredients.textContent = '';
         showModal('❌ Product not found');
@@ -138,7 +142,7 @@ function checkVeganStatus(barcode) {
       console.error('API Error:', error);
       loadingSpinner.style.display = 'none';
       resultName.textContent = 'Error fetching data';
-      resultImage.src = '';
+      resultImage.style.display = 'none';
       veganStatus.textContent = '';
       productIngredients.textContent = '';
       showModal('❌ Error fetching product data');
@@ -164,21 +168,11 @@ function startScanner() {
 scanAgainBtn.addEventListener('click', () => {
   resultName.textContent = '';
   resultImage.src = '';
+  resultImage.style.display = 'none';
   veganStatus.textContent = '';
   productIngredients.textContent = '';
   scanAgainBtn.style.display = 'none';
   startScanner();
-});
-
-Html5Qrcode.getCameras().then(devices => {
-  if (devices && devices.length) {
-    startScanner();
-  } else {
-    showModal('❌ No cameras found');
-  }
-}).catch(err => {
-  console.error('Camera access error:', err);
-  showModal('❌ Failed to access camera');
 });
 
 // Dark mode toggle
