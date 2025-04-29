@@ -1,3 +1,4 @@
+console.log("✅ app.js loaded");
 const scanAgainBtn = document.getElementById('scan-again');
 
 function startScanner() {
