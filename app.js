@@ -10,9 +10,6 @@ const darkToggle = document.getElementById('toggle-dark');
 const darkIcon = document.getElementById('dark-mode-icon');
 const loadingSpinner = document.getElementById('loading-spinner');
 
-const html5QrCode = new Html5Qrcode("reader");
-const config = { fps: 10, qrbox: 250 };
-
 const uncertainPatterns = [
   /\bd3\b/i,
   /\bmonoglyceride(s)?\b/i,
@@ -62,6 +59,15 @@ function showModal(message) {
 
 modalClose.addEventListener('click', () => {
   modal.classList.add('hidden');
+});
+
+document.getElementById('submit-barcode').addEventListener('click', () => {
+  const input = document.getElementById('manual-barcode');
+  const code = input.value.trim();
+  if (code) {
+    checkVeganStatus(code);
+    input.value = '';
+  }
 });
 
 function checkVeganStatus(barcode) {
@@ -149,21 +155,24 @@ function checkVeganStatus(barcode) {
     });
 }
 
-function startScanner() {
-  html5QrCode.start(
-    { facingMode: "environment" },
-    config,
-    barcode => {
-      html5QrCode.stop().then(() => {
-        checkVeganStatus(barcode);
-      });
-    },
-    error => {}
-  ).catch(err => {
-    console.error('Camera error:', err);
-    showModal('❌ Unable to start camera');
-  });
+// 🔄 Barcode Scanner: Html5QrcodeScanner UI + enhancements
+function onScanSuccess(barcode) {
+  if (barcode) {
+    scanner.clear(); // stop camera
+    checkVeganStatus(barcode);
+    navigator.vibrate?.(100);
+    // Optional beep: new Audio('/beep.mp3').play();
+  }
 }
+
+const scanner = new Html5QrcodeScanner("reader", {
+  fps: 10,
+  qrbox: (vw, vh) => Math.min(vw, vh) * 0.6,
+  rememberLastUsedCamera: true,
+  aspectRatio: 1.333
+});
+
+scanner.render(onScanSuccess);
 
 scanAgainBtn.addEventListener('click', () => {
   resultName.textContent = '';
@@ -172,10 +181,10 @@ scanAgainBtn.addEventListener('click', () => {
   veganStatus.textContent = '';
   productIngredients.textContent = '';
   scanAgainBtn.style.display = 'none';
-  startScanner();
+  scanner.render(onScanSuccess);
 });
 
-// Dark mode toggle
+// 🌙 Dark Mode Toggle
 darkToggle.addEventListener('change', (e) => {
   document.body.classList.toggle('dark-mode', e.target.checked);
   darkIcon.textContent = e.target.checked ? '☀️' : '🌙';
