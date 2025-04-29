@@ -6,12 +6,25 @@
   <title>Vegan Barcode Scanner</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    #loading-spinner {
+      display: none;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: #888;
+      margin-top: 1rem;
+    }
+    body.dark-mode #loading-spinner {
+      color: #ccc;
+    }
+  </style>
 </head>
 <body>
   <h1>Vegan Barcode Scanner</h1>
   <label id="dark-mode-label"><input type="checkbox" id="toggle-dark" /> <span id="dark-mode-icon">🌙</span> Dark Mode</label>
   <div id="reader" class="scanner"></div>
   <div id="result">
+    <div id="loading-spinner">⏳ Loading product data...</div>
     <p id="product-name"></p>
     <img id="product-image" alt="Product Image" />
     <p id="vegan-status"></p>
