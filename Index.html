@@ -12,11 +12,8 @@
       display: none;
       font-size: 1.1rem;
       font-style: italic;
-      color: #888;
-      margin-top: 1rem;
-    }
-    body.dark-mode #loading-spinner {
       color: #ccc;
+      margin-top: 1rem;
     }
     #product-ingredients mark.uncertain {
       background-color: orange;
@@ -30,13 +27,10 @@
     }
   </style>
 </head>
-<body>
+<body class="dark-mode">
   <img src="assets/Elephant.png" alt="Elephant Logo" class="logo" />
   <h1>Vegan Barcode Scanner</h1>
-  <label id="dark-mode-label">
-    <input type="checkbox" id="toggle-dark" />
-    <span id="dark-mode-icon">🌙</span> Dark Mode
-  </label>
+
   <div id="reader" class="scanner"></div>
 
   <div id="manual-input">
