@@ -3,38 +3,34 @@ body {
   text-align: center;
   padding: 1rem;
   margin: 0;
-  background: linear-gradient(to bottom right, #e6f4ea, #c6ecc6);
+  background: linear-gradient(to bottom right, #222, #2d3a2d);
   background-image: url('https://www.transparenttextures.com/patterns/green-fibers.png');
   background-repeat: repeat;
-  color: #1b421b;
+  color: #eee;
 }
 
 .logo {
   width: 120px;
   border-radius: 50%;
-  background: #e0f2e9;
+  background: #2c3e2c;
   padding: 0.5rem;
-  box-shadow: 0 0 10px rgba(34, 139, 34, 0.2);
-}
-
-.logo {
+  box-shadow: 0 0 10px rgba(144, 238, 144, 0.3);
   margin-top: 1rem;
   margin-bottom: 0.5rem;
 }
 
-
 h1 {
-  color: #2e7d32;
+  color: #c8f8c8;
   margin-bottom: 1rem;
 }
 
 #reader {
   margin: auto;
   width: 320px;
-  border: 3px dashed #66bb6a;
+  border: 3px dashed #6dbf6d;
   padding: 1rem;
   border-radius: 12px;
-  background: #ffffffee;
+  background: #333;
 }
 
 #manual-input {
@@ -44,8 +40,10 @@ h1 {
 #manual-barcode {
   padding: 0.5rem;
   font-size: 1rem;
-  border: 1px solid #66bb6a;
+  border: 1px solid #6dbf6d;
   border-radius: 5px;
+  background: #222;
+  color: #eee;
 }
 
 #submit-barcode {
@@ -72,7 +70,7 @@ h1 {
   margin: 1rem auto;
   display: block;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 128, 0, 0.2);
+  box-shadow: 0 0 10px rgba(144, 238, 144, 0.2);
 }
 
 #vegan-status {
@@ -122,11 +120,12 @@ h1 {
 }
 
 .modal-content {
-  background: white;
+  background: #444;
   padding: 2rem;
   border-radius: 10px;
   text-align: center;
   max-width: 300px;
+  color: #fff;
   box-shadow: 0 0 15px rgba(34, 139, 34, 0.4);
 }
 
@@ -137,26 +136,4 @@ h1 {
 #modal-message {
   font-size: 1.2rem;
   margin-bottom: 1rem;
-}
-
-/* Dark Mode */
-body.dark-mode {
-  background: linear-gradient(to bottom right, #222, #2d3a2d);
-  color: #eee;
-}
-
-body.dark-mode #reader {
-  background: #333;
-  border-color: #6dbf6d;
-}
-
-body.dark-mode .modal-content {
-  background: #444;
-  color: #fff;
-}
-
-body.dark-mode #submit-barcode,
-body.dark-mode #scan-again {
-  background: #66bb6a;
-  color: #fff;
 }
