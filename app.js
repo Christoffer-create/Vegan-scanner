@@ -67,7 +67,7 @@ async function translateToEnglish(text) {
   console.log('Original text:', text);
 
   try {
-    const detectRes = await fetch('https://libretranslate.de/detect', {
+    const detectRes = await fetch('https://translate.argosopentech.com/detect', {
       method: 'POST',
       body: JSON.stringify({ q: text }),
       headers: {
@@ -82,7 +82,7 @@ async function translateToEnglish(text) {
 
     if (sourceLang === 'en') return text;
 
-    const translateRes = await fetch('https://libretranslate.de/translate', {
+    const translateRes = await fetch('https://translate.argosopentech.com/translate', {
       method: 'POST',
       body: JSON.stringify({
         q: text,
