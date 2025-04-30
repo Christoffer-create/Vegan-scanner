@@ -72,7 +72,10 @@ async function translateToEnglish(text) {
     const detectRes = await fetch('https://libretranslate.com/detect', {
       method: 'POST',
       body: JSON.stringify({ q: text }),
-      headers: { 'Content-Type': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
     });
 
     const detected = await detectRes.json();
@@ -89,7 +92,10 @@ async function translateToEnglish(text) {
         target: 'en',
         format: 'text'
       }),
-      headers: { 'Content-Type': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
     });
 
     const translated = await translateRes.json();
@@ -101,6 +107,7 @@ async function translateToEnglish(text) {
     return text;
   }
 }
+
 
 function checkVeganStatus(barcode) {
   loadingSpinner.style.display = 'block';
