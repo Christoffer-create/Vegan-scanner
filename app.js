@@ -155,17 +155,17 @@ function checkVeganStatus(barcode) {
     });
 }
 
-// 🔄 Barcode Scanner: Html5QrcodeScanner UI + enhancements
+// Barcode Scanner lifecycle
+let scanner;
+
 function onScanSuccess(barcode) {
   if (barcode) {
-    scanner.clear(); // stop camera
-    checkVeganStatus(barcode);
-    navigator.vibrate?.(100);
-    // Optional beep: new Audio('/beep.mp3').play();
+    scanner.clear().then(() => {
+      checkVeganStatus(barcode);
+      navigator.vibrate?.(100);
+    }).catch(console.warn);
   }
 }
-
-let scanner;
 
 function startScanner() {
   const config = {
@@ -176,7 +176,8 @@ function startScanner() {
   };
 
   if (scanner) {
-    scanner.clear().then(() => {
+    const oldScanner = scanner;
+    oldScanner.clear().then(() => {
       scanner = new Html5QrcodeScanner("reader", config);
       scanner.render(onScanSuccess);
     }).catch(err => {
@@ -190,8 +191,10 @@ function startScanner() {
   }
 }
 
+// Init scanner on load
+startScanner();
 
-
+// Scan again button
 scanAgainBtn.addEventListener('click', () => {
   resultName.textContent = '';
   resultImage.src = '';
@@ -202,7 +205,7 @@ scanAgainBtn.addEventListener('click', () => {
   startScanner();
 });
 
-// 🌙 Dark Mode Toggle
+// Dark mode toggle
 darkToggle.addEventListener('change', (e) => {
   document.body.classList.toggle('dark-mode', e.target.checked);
   darkIcon.textContent = e.target.checked ? '☀️' : '🌙';
