@@ -24,14 +24,18 @@ h1 {
   margin-bottom: 1rem;
 }
 
-#reader {
-  margin: auto;
-  width: 320px;
-  border: 3px dashed #6dbf6d;
-  padding: 1rem;
-  border-radius: 12px;
-  background: #333;
+#reader video {
+  width: 100% !important;
+  height: auto !important;
+  border-radius: 10px;
+  object-fit: cover;
 }
+
+#reader {
+  max-height: 300px;
+  overflow: hidden;
+}
+
 
 #manual-input {
   margin-top: 1.5rem;
