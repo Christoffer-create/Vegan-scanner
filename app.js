@@ -71,25 +71,49 @@ document.getElementById('submit-barcode').addEventListener('click', () => {
 });
 
 async function translateToEnglish(text) {
+  console.log('Original text:', text);
+
   try {
-    const response = await fetch('https://libretranslate.com/translate', {
+    // Step 1: Detect language
+    const detectRes = await fetch('https://libretranslate.com/detect', {
+      method: 'POST',
+      body: JSON.stringify({ q: text }),
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const detected = await detectRes.json();
+    const sourceLang = detected?.[0]?.language || 'auto';
+
+    console.log('Detected language:', sourceLang);
+
+    // Step 2: Translate if not already English
+    if (sourceLang === 'en') {
+      console.log('No translation needed (already English)');
+      return text;
+    }
+
+    const translateRes = await fetch('https://libretranslate.com/translate', {
       method: 'POST',
       body: JSON.stringify({
         q: text,
-        source: 'auto',
+        source: sourceLang,
         target: 'en',
         format: 'text'
       }),
       headers: { 'Content-Type': 'application/json' }
     });
 
-    const data = await response.json();
+    const data = await translateRes.json();
+    console.log('Translated text:', data.translatedText);
+
     return data.translatedText || text;
+
   } catch (error) {
     console.error('Translation error:', error);
     return text;
   }
 }
+
 
 async function checkVeganStatus(barcode) {
   loadingSpinner.style.display = 'block';
