@@ -1,5 +1,3 @@
-// app.js
-
 const resultName = document.getElementById('product-name');
 const resultImage = document.getElementById('product-image');
 const veganStatus = document.getElementById('vegan-status');
@@ -10,15 +8,12 @@ const modalMessage = document.getElementById('modal-message');
 const modalClose = document.getElementById('modal-close');
 const loadingSpinner = document.getElementById('loading-spinner');
 
+document.body.classList.add('dark-mode');
+
 const uncertainPatterns = [
-  /\bd3\b/i,
-  /\bmonoglyceride(s)?\b/i,
-  /\bdiglyceride(s)?\b/i,
-  /\bnatural flavors?\b/i,
-  /\blanolin\b/i,
-  /\bomega[- ]?3\b/i,
-  /\blecithin\b/i,
-  /\bvitamin[- ]?d3\b/i
+  /\bd3\b/i, /\bmonoglyceride(s)?\b/i, /\bdiglyceride(s)?\b/i,
+  /\bnatural flavors?\b/i, /\blanolin\b/i, /\bomega[- ]?3\b/i,
+  /\blecithin\b/i, /\bvitamin[- ]?d3\b/i
 ];
 
 const nonVeganPatterns = [
@@ -74,7 +69,6 @@ async function translateToEnglish(text) {
   console.log('Original text:', text);
 
   try {
-    // Step 1: Detect language
     const detectRes = await fetch('https://libretranslate.com/detect', {
       method: 'POST',
       body: JSON.stringify({ q: text }),
@@ -83,14 +77,9 @@ async function translateToEnglish(text) {
 
     const detected = await detectRes.json();
     const sourceLang = detected?.[0]?.language || 'auto';
-
     console.log('Detected language:', sourceLang);
 
-    // Step 2: Translate if not already English
-    if (sourceLang === 'en') {
-      console.log('No translation needed (already English)');
-      return text;
-    }
+    if (sourceLang === 'en') return text;
 
     const translateRes = await fetch('https://libretranslate.com/translate', {
       method: 'POST',
@@ -103,117 +92,117 @@ async function translateToEnglish(text) {
       headers: { 'Content-Type': 'application/json' }
     });
 
-    const data = await translateRes.json();
-    console.log('Translated text:', data.translatedText);
+    const translated = await translateRes.json();
+    console.log('Translated:', translated.translatedText);
+    return translated.translatedText || text;
 
-    return data.translatedText || text;
-
-  } catch (error) {
-    console.error('Translation error:', error);
+  } catch (err) {
+    console.error('Translation error:', err);
     return text;
   }
 }
 
-
-async function checkVeganStatus(barcode) {
+function checkVeganStatus(barcode) {
   loadingSpinner.style.display = 'block';
 
   const url = `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`;
 
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    loadingSpinner.style.display = 'none';
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      loadingSpinner.style.display = 'none';
 
-    if (data.status === 1) {
-      const product = data.product;
-      resultName.textContent = product.product_name || 'No name available';
+      if (data.status === 1) {
+        const product = data.product;
+        resultName.textContent = product.product_name || 'No name available';
 
-      if (product.image_url) {
-        resultImage.src = product.image_url;
-        resultImage.style.display = 'block';
-      } else {
-        resultImage.src = 'assets/Confused-ele.gif'; // your fallback
-        resultImage.style.display = 'block';
-      }
-
-      let ingredientsText = product.ingredients_text || '';
-      const tags = product.ingredients_analysis_tags || [];
-      let message = '';
-
-      // Translate ingredients to English if not already
-      if (product.ingredients_text_with_allergens && product.ingredients_text_with_allergens !== ingredientsText) {
-        ingredientsText = product.ingredients_text_with_allergens;
-      }
-
-      if (product.ingredients_text_en) {
-        ingredientsText = product.ingredients_text_en;
-      } else {
-        ingredientsText = await translateToEnglish(ingredientsText);
-      }
-
-      if (tags.includes('en:vegan')) {
-        veganStatus.textContent = '✅ Vegan';
-        veganStatus.style.color = 'green';
-        message = '✅ This product is Vegan (confirmed by OpenFoodFacts)';
-      } else if (tags.includes('en:non-vegan')) {
-        veganStatus.textContent = '❌ Not Vegan';
-        veganStatus.style.color = 'red';
-        message = '❌ This product is Not Vegan (confirmed by OpenFoodFacts)';
-      } else if (!ingredientsText.trim()) {
-        veganStatus.textContent = '⚠️ Vegan status uncertain (no ingredients listed)';
-        veganStatus.style.color = 'orange';
-        productIngredients.innerHTML = 'No ingredients listed';
-        message = '⚠️ Uncertain - No ingredients listed';
-      } else {
-        const nonVeganMatches = findMatchedRegex(ingredientsText, nonVeganPatterns);
-        const uncertainMatches = findMatchedRegex(ingredientsText, uncertainPatterns);
-
-        productIngredients.innerHTML =
-          highlightMatches(
-            highlightMatches(ingredientsText, nonVeganPatterns, 'non-vegan'),
-            uncertainPatterns,
-            'uncertain'
-          );
-
-        if (nonVeganMatches.length > 0) {
-          veganStatus.textContent = `❌ Not Vegan (contains: ${nonVeganMatches.join(', ')})`;
-          veganStatus.style.color = 'red';
-          message = `❌ Not Vegan - Detected: ${nonVeganMatches.join(', ')}`;
-        } else if (uncertainMatches.length > 0) {
-          veganStatus.textContent = `⚠️ Vegan status uncertain (contains: ${uncertainMatches.join(', ')})`;
-          veganStatus.style.color = 'orange';
-          message = `⚠️ Uncertain - Detected: ${uncertainMatches.join(', ')}`;
+        if (product.image_url) {
+          resultImage.src = product.image_url;
+          resultImage.style.display = 'block';
         } else {
-          veganStatus.textContent = '✅ Vegan (no animal ingredients detected)';
-          veganStatus.style.color = 'green';
-          message = '✅ Vegan (based on ingredient check)';
+          resultImage.src = 'assets/Confused-ele.gif';
+          resultImage.style.display = 'block';
         }
-      }
 
-      showModal(message);
-      scanAgainBtn.style.display = 'inline-block';
-    } else {
-      resultName.textContent = 'Product not found';
+        const tags = product.ingredients_analysis_tags || [];
+        const rawIngredients = product.ingredients_text || '';
+
+        if (tags.includes('en:vegan')) {
+          veganStatus.textContent = '✅ Vegan';
+          veganStatus.style.color = 'green';
+          showModal('✅ This product is Vegan (confirmed by OpenFoodFacts)');
+          scanAgainBtn.style.display = 'inline-block';
+          return;
+        }
+
+        if (tags.includes('en:non-vegan')) {
+          veganStatus.textContent = '❌ Not Vegan';
+          veganStatus.style.color = 'red';
+          showModal('❌ This product is Not Vegan (confirmed by OpenFoodFacts)');
+          scanAgainBtn.style.display = 'inline-block';
+          return;
+        }
+
+        if (!rawIngredients.trim()) {
+          veganStatus.textContent = '⚠️ Vegan status uncertain (no ingredients listed)';
+          veganStatus.style.color = 'orange';
+          productIngredients.innerHTML = 'No ingredients listed';
+          showModal('⚠️ Uncertain - No ingredients listed');
+          scanAgainBtn.style.display = 'inline-block';
+          return;
+        }
+
+        // Translate and analyze ingredients
+        translateToEnglish(rawIngredients).then(translated => {
+          const nonVeganMatches = findMatchedRegex(translated, nonVeganPatterns);
+          const uncertainMatches = findMatchedRegex(translated, uncertainPatterns);
+
+          productIngredients.innerHTML =
+            highlightMatches(
+              highlightMatches(translated, nonVeganPatterns, 'non-vegan'),
+              uncertainPatterns,
+              'uncertain'
+            );
+
+          if (nonVeganMatches.length > 0) {
+            veganStatus.textContent = `❌ Not Vegan (contains: ${nonVeganMatches.join(', ')})`;
+            veganStatus.style.color = 'red';
+            showModal(`❌ Not Vegan - Detected: ${nonVeganMatches.join(', ')}`);
+          } else if (uncertainMatches.length > 0) {
+            veganStatus.textContent = `⚠️ Vegan status uncertain (contains: ${uncertainMatches.join(', ')})`;
+            veganStatus.style.color = 'orange';
+            showModal(`⚠️ Uncertain - Detected: ${uncertainMatches.join(', ')}`);
+          } else {
+            veganStatus.textContent = '✅ Vegan (no animal ingredients detected)';
+            veganStatus.style.color = 'green';
+            showModal('✅ Vegan (based on ingredient check)');
+          }
+
+          scanAgainBtn.style.display = 'inline-block';
+        });
+      } else {
+        resultName.textContent = 'Product not found';
+        resultImage.src = '';
+        resultImage.style.display = 'none';
+        veganStatus.textContent = '';
+        productIngredients.textContent = '';
+        showModal('❌ Product not found');
+        scanAgainBtn.style.display = 'inline-block';
+      }
+    })
+    .catch(err => {
+      console.error('API error:', err);
+      loadingSpinner.style.display = 'none';
+      resultName.textContent = 'Error fetching data';
+      resultImage.src = '';
       resultImage.style.display = 'none';
       veganStatus.textContent = '';
       productIngredients.textContent = '';
-      showModal('❌ Product not found');
+      showModal('❌ Error fetching product data');
       scanAgainBtn.style.display = 'inline-block';
-    }
-  } catch (error) {
-    console.error('API Error:', error);
-    loadingSpinner.style.display = 'none';
-    resultName.textContent = 'Error fetching data';
-    resultImage.style.display = 'none';
-    veganStatus.textContent = '';
-    productIngredients.textContent = '';
-    showModal('❌ Error fetching product data');
-    scanAgainBtn.style.display = 'inline-block';
-  }
+    });
 }
 
-// 📷 Scanner: Html5QrCode (simple and clean)
 const html5QrCode = new Html5Qrcode("reader");
 
 function startScanner() {
@@ -226,9 +215,7 @@ function startScanner() {
         navigator.vibrate?.(100);
       });
     },
-    error => {
-      // optional error handling
-    }
+    error => {}
   ).catch(err => {
     console.error("Camera start error:", err);
     showModal('❌ Unable to access camera');
