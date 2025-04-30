@@ -88,7 +88,8 @@ function checkVeganStatus(barcode) {
           resultImage.src = product.image_url;
           resultImage.style.display = 'block';
         } else {
-          resultImage.style.display = 'none';
+          resultImage.src = 'assets/Confused-ele.gif'; // your fallback
+          resultImage.style.display = 'block';
         }
 
         const ingredientsText = product.ingredients_text || '';
