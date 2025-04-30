@@ -17,6 +17,12 @@ body {
   box-shadow: 0 0 10px rgba(34, 139, 34, 0.2);
 }
 
+.logo {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+
 h1 {
   color: #2e7d32;
   margin-bottom: 1rem;
