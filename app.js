@@ -163,6 +163,7 @@ async function checkVeganStatus(barcode) {
       veganStatus.textContent = '';
       productIngredients.textContent = '';
       showModal('❌ Product not found');
+      scanAgainBtn.style.display = 'inline-block';
     }
   } catch (error) {
     console.error('API Error:', error);
