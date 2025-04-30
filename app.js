@@ -8,8 +8,6 @@ const modalMessage = document.getElementById('modal-message');
 const modalClose = document.getElementById('modal-close');
 const loadingSpinner = document.getElementById('loading-spinner');
 
-document.body.classList.add('dark-mode');
-
 const uncertainPatterns = [
   /\bd3\b/i, /\bmonoglyceride(s)?\b/i, /\bdiglyceride(s)?\b/i,
   /\bnatural flavors?\b/i, /\blanolin\b/i, /\bomega[- ]?3\b/i,
@@ -69,7 +67,7 @@ async function translateToEnglish(text) {
   console.log('Original text:', text);
 
   try {
-    const detectRes = await fetch('https://libretranslate.com/detect', {
+    const detectRes = await fetch('https://libretranslate.de/detect', {
       method: 'POST',
       body: JSON.stringify({ q: text }),
       headers: {
@@ -84,7 +82,7 @@ async function translateToEnglish(text) {
 
     if (sourceLang === 'en') return text;
 
-    const translateRes = await fetch('https://libretranslate.com/translate', {
+    const translateRes = await fetch('https://libretranslate.de/translate', {
       method: 'POST',
       body: JSON.stringify({
         q: text,
@@ -107,7 +105,6 @@ async function translateToEnglish(text) {
     return text;
   }
 }
-
 
 function checkVeganStatus(barcode) {
   loadingSpinner.style.display = 'block';
@@ -159,7 +156,6 @@ function checkVeganStatus(barcode) {
           return;
         }
 
-        // Translate and analyze ingredients
         translateToEnglish(rawIngredients).then(translated => {
           const nonVeganMatches = findMatchedRegex(translated, nonVeganPatterns);
           const uncertainMatches = findMatchedRegex(translated, uncertainPatterns);
@@ -187,6 +183,7 @@ function checkVeganStatus(barcode) {
 
           scanAgainBtn.style.display = 'inline-block';
         });
+
       } else {
         resultName.textContent = 'Product not found';
         resultImage.src = '';
@@ -239,5 +236,4 @@ scanAgainBtn.addEventListener('click', () => {
   startScanner();
 });
 
-// Start scanner on load
 startScanner();
