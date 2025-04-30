@@ -9,6 +9,14 @@ body {
   color: #1b421b;
 }
 
+.logo {
+  width: 120px;
+  border-radius: 50%;
+  background: #e0f2e9;
+  padding: 0.5rem;
+  box-shadow: 0 0 10px rgba(34, 139, 34, 0.2);
+}
+
 h1 {
   color: #2e7d32;
   margin-bottom: 1rem;
