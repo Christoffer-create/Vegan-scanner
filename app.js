@@ -165,14 +165,32 @@ function onScanSuccess(barcode) {
   }
 }
 
-const scanner = new Html5QrcodeScanner("reader", {
-  fps: 10,
-  qrbox: (vw, vh) => Math.min(vw, vh) * 0.6,
-  rememberLastUsedCamera: true,
-  aspectRatio: 1.333
-});
+let scanner;
 
-scanner.render(onScanSuccess);
+function startScanner() {
+  const config = {
+    fps: 10,
+    qrbox: (vw, vh) => Math.min(vw, vh) * 0.6,
+    rememberLastUsedCamera: true,
+    aspectRatio: 1.333
+  };
+
+  if (scanner) {
+    scanner.clear().then(() => {
+      scanner = new Html5QrcodeScanner("reader", config);
+      scanner.render(onScanSuccess);
+    }).catch(err => {
+      console.error("Failed to clear scanner:", err);
+      scanner = new Html5QrcodeScanner("reader", config);
+      scanner.render(onScanSuccess);
+    });
+  } else {
+    scanner = new Html5QrcodeScanner("reader", config);
+    scanner.render(onScanSuccess);
+  }
+}
+
+
 
 scanAgainBtn.addEventListener('click', () => {
   resultName.textContent = '';
@@ -181,7 +199,7 @@ scanAgainBtn.addEventListener('click', () => {
   veganStatus.textContent = '';
   productIngredients.textContent = '';
   scanAgainBtn.style.display = 'none';
-  scanner.render(onScanSuccess);
+  startScanner();
 });
 
 // 🌙 Dark Mode Toggle
