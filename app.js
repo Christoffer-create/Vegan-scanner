@@ -155,46 +155,31 @@ function checkVeganStatus(barcode) {
     });
 }
 
-// Barcode Scanner lifecycle
-let scanner;
-
-function onScanSuccess(barcode) {
-  if (barcode) {
-    scanner.clear().then(() => {
-      checkVeganStatus(barcode);
-      navigator.vibrate?.(100);
-    }).catch(console.warn);
-  }
-}
+// 📷 Scanner: Html5QrCode (simple version)
+const html5QrCode = new Html5Qrcode("reader");
 
 function startScanner() {
-  const config = {
-    fps: 10,
-    qrbox: (vw, vh) => Math.min(vw, vh) * 0.6,
-    rememberLastUsedCamera: true,
-    aspectRatio: 1.333
-  };
-
-  if (scanner) {
-    const oldScanner = scanner;
-    oldScanner.clear().then(() => {
-      scanner = new Html5QrcodeScanner("reader", config);
-      scanner.render(onScanSuccess);
-    }).catch(err => {
-      console.error("Failed to clear scanner:", err);
-      scanner = new Html5QrcodeScanner("reader", config);
-      scanner.render(onScanSuccess);
-    });
-  } else {
-    scanner = new Html5QrcodeScanner("reader", config);
-    scanner.render(onScanSuccess);
-  }
+  html5QrCode.start(
+    { facingMode: "environment" }, // auto-select back camera
+    {
+      fps: 10,
+      qrbox: 250
+    },
+    barcode => {
+      html5QrCode.stop().then(() => {
+        checkVeganStatus(barcode);
+        navigator.vibrate?.(100);
+      });
+    },
+    error => {
+      // Optional: console.warn("Scan error", error);
+    }
+  ).catch(err => {
+    console.error("Camera start error:", err);
+    showModal('❌ Unable to access camera');
+  });
 }
 
-// Init scanner on load
-startScanner();
-
-// Scan again button
 scanAgainBtn.addEventListener('click', () => {
   resultName.textContent = '';
   resultImage.src = '';
@@ -205,8 +190,11 @@ scanAgainBtn.addEventListener('click', () => {
   startScanner();
 });
 
-// Dark mode toggle
+// 🌙 Dark Mode
 darkToggle.addEventListener('change', (e) => {
   document.body.classList.toggle('dark-mode', e.target.checked);
   darkIcon.textContent = e.target.checked ? '☀️' : '🌙';
 });
+
+// Start scanner on load
+startScanner();
