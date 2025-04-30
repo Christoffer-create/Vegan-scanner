@@ -1,3 +1,5 @@
+// app.js
+
 const resultName = document.getElementById('product-name');
 const resultImage = document.getElementById('product-image');
 const veganStatus = document.getElementById('vegan-status');
@@ -7,8 +9,6 @@ const modal = document.getElementById('modal');
 const modalMessage = document.getElementById('modal-message');
 const modalClose = document.getElementById('modal-close');
 const loadingSpinner = document.getElementById('loading-spinner');
-
-//document.body.classList.add('dark-mode');
 
 const uncertainPatterns = [
   /\bd3\b/i,
@@ -70,27 +70,23 @@ document.getElementById('submit-barcode').addEventListener('click', () => {
   }
 });
 
-function seemsEnglish(text) {
-  const commonEnglishWords = ['and', 'the', 'with', 'contains', 'sugar', 'salt'];
-  return commonEnglishWords.some(word => text.toLowerCase().includes(word));
-}
-
-async function translateText(text) {
+async function translateToEnglish(text) {
   try {
-    const res = await fetch('https://libretranslate.de/translate', {
+    const response = await fetch('https://libretranslate.com/translate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         q: text,
         source: 'auto',
         target: 'en',
         format: 'text'
-      })
+      }),
+      headers: { 'Content-Type': 'application/json' }
     });
-    const data = await res.json();
+
+    const data = await response.json();
     return data.translatedText || text;
-  } catch (err) {
-    console.error('Translation failed:', err);
+  } catch (error) {
+    console.error('Translation error:', error);
     return text;
   }
 }
@@ -113,21 +109,24 @@ async function checkVeganStatus(barcode) {
         resultImage.src = product.image_url;
         resultImage.style.display = 'block';
       } else {
-        resultImage.src = 'assets/Confused-ele.gif';
+        resultImage.src = 'assets/Confused-ele.gif'; // your fallback
         resultImage.style.display = 'block';
       }
 
-      let ingredientsText = product.ingredients_text_en || '';
-      if (!ingredientsText && product.ingredients_text) {
-        if (seemsEnglish(product.ingredients_text)) {
-          ingredientsText = product.ingredients_text;
-        } else {
-          ingredientsText = await translateText(product.ingredients_text);
-        }
-      }
-
+      let ingredientsText = product.ingredients_text || '';
       const tags = product.ingredients_analysis_tags || [];
       let message = '';
+
+      // Translate ingredients to English if not already
+      if (product.ingredients_text_with_allergens && product.ingredients_text_with_allergens !== ingredientsText) {
+        ingredientsText = product.ingredients_text_with_allergens;
+      }
+
+      if (product.ingredients_text_en) {
+        ingredientsText = product.ingredients_text_en;
+      } else {
+        ingredientsText = await translateToEnglish(ingredientsText);
+      }
 
       if (tags.includes('en:vegan')) {
         veganStatus.textContent = '✅ Vegan';
@@ -204,12 +203,11 @@ function startScanner() {
       });
     },
     error => {
-      // silent scan error
+      // optional error handling
     }
   ).catch(err => {
     console.error("Camera start error:", err);
     showModal('❌ Unable to access camera');
-    scanAgainBtn.style.display = 'inline-block';
   });
 }
 
@@ -223,4 +221,5 @@ scanAgainBtn.addEventListener('click', () => {
   startScanner();
 });
 
+// Start scanner on load
 startScanner();
