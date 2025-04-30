@@ -1,8 +1,5 @@
 body {
-  background: #121212; /* solid dark OR keep your previous gradient if you like */
-  /* OR use:
   background: linear-gradient(to bottom right, #222, #2d3a2d);
-  */
   color: #eee;
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
