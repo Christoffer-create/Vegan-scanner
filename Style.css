@@ -7,8 +7,6 @@ body {
   background:
     linear-gradient(to bottom right, #222, #2d3a2d),
     url('https://www.transparenttextures.com/patterns/green-fibers.png');
-  background-repeat: repeat;
-  background-size: 300px 300px;
 }
 
 .logo {
