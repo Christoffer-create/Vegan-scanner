@@ -8,7 +8,7 @@ const modalMessage = document.getElementById('modal-message');
 const modalClose = document.getElementById('modal-close');
 const loadingSpinner = document.getElementById('loading-spinner');
 
-document.body.classList.add('dark-mode');
+//document.body.classList.add('dark-mode');
 
 const uncertainPatterns = [
   /\bd3\b/i,
