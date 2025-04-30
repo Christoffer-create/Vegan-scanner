@@ -1,4 +1,7 @@
 body {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
   font-family: 'Segoe UI', sans-serif;
   text-align: center;
   padding: 1rem;
@@ -22,16 +25,19 @@ body {
 h1 {
   color: #c8f8c8;
   margin-bottom: 1rem;
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
 }
+
 
 #reader {
   background: #333;
   border: 3px dashed #6dbf6d;
   padding: 1rem;
   border-radius: 12px;
-  width: 100%;
+  width: 90%;
   max-width: 400px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 #reader video {
@@ -41,9 +47,14 @@ h1 {
   border-radius: 10px;
 }
 
-#manual-input {
-  margin-top: 1.5rem;
+#manual-input,
+#result {
+  width: 90%;
+  max-width: 500px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
+
 
 #manual-barcode {
   padding: 0.5rem;
