@@ -6,9 +6,9 @@ const scanAgainBtn = document.getElementById('scan-again');
 const modal = document.getElementById('modal');
 const modalMessage = document.getElementById('modal-message');
 const modalClose = document.getElementById('modal-close');
-const darkToggle = document.getElementById('toggle-dark');
-const darkIcon = document.getElementById('dark-mode-icon');
 const loadingSpinner = document.getElementById('loading-spinner');
+
+document.body.classList.add('dark-mode'); // Always use dark mode
 
 const uncertainPatterns = [
   /\bd3\b/i,
@@ -155,16 +155,13 @@ function checkVeganStatus(barcode) {
     });
 }
 
-// 📷 Scanner: Html5QrCode (simple version)
+// 📷 Scanner: Html5QrCode (simple and clean)
 const html5QrCode = new Html5Qrcode("reader");
 
 function startScanner() {
   html5QrCode.start(
-    { facingMode: "environment" }, // auto-select back camera
-    {
-      fps: 10,
-      qrbox: 250
-    },
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
     barcode => {
       html5QrCode.stop().then(() => {
         checkVeganStatus(barcode);
@@ -172,7 +169,7 @@ function startScanner() {
       });
     },
     error => {
-      // Optional: console.warn("Scan error", error);
+      // optional error handling
     }
   ).catch(err => {
     console.error("Camera start error:", err);
@@ -188,12 +185,6 @@ scanAgainBtn.addEventListener('click', () => {
   productIngredients.textContent = '';
   scanAgainBtn.style.display = 'none';
   startScanner();
-});
-
-// 🌙 Dark Mode
-darkToggle.addEventListener('change', (e) => {
-  document.body.classList.toggle('dark-mode', e.target.checked);
-  darkIcon.textContent = e.target.checked ? '☀️' : '🌙';
 });
 
 // Start scanner on load
