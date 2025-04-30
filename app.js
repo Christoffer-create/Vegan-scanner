@@ -11,8 +11,14 @@ const loadingSpinner = document.getElementById('loading-spinner');
 document.body.classList.add('dark-mode');
 
 const uncertainPatterns = [
-  /\bd3\b/i, /\bmonoglyceride(s)?\b/i, /\bdiglyceride(s)?\b/i, /\bnatural flavors?\b/i,
-  /\blanolin\b/i, /\bomega[- ]?3\b/i, /\blecithin\b/i, /\bvitamin[- ]?d3\b/i
+  /\bd3\b/i,
+  /\bmonoglyceride(s)?\b/i,
+  /\bdiglyceride(s)?\b/i,
+  /\bnatural flavors?\b/i,
+  /\blanolin\b/i,
+  /\bomega[- ]?3\b/i,
+  /\blecithin\b/i,
+  /\bvitamin[- ]?d3\b/i
 ];
 
 const nonVeganPatterns = [
@@ -29,7 +35,12 @@ const nonVeganPatterns = [
 
 function findMatchedRegex(text, patterns) {
   if (!text) return [];
-  return patterns.filter(rx => rx.test(text)).map(rx => text.match(rx)?.[0] || rx.source);
+  return patterns
+    .filter(rx => rx.test(text))
+    .map(rx => {
+      const match = text.match(rx);
+      return match ? match[0] : rx.source;
+    });
 }
 
 function highlightMatches(text, patterns, cssClass) {
@@ -51,20 +62,22 @@ modalClose.addEventListener('click', () => {
 });
 
 document.getElementById('submit-barcode').addEventListener('click', () => {
-  const code = document.getElementById('manual-barcode').value.trim();
+  const input = document.getElementById('manual-barcode');
+  const code = input.value.trim();
   if (code) {
     checkVeganStatus(code);
-    document.getElementById('manual-barcode').value = '';
+    input.value = '';
   }
 });
 
 function seemsEnglish(text) {
-  return /^[\x00-\x7F\s,().%-]+$/.test(text.trim()); // ASCII characters only
+  const commonEnglishWords = ['and', 'the', 'with', 'contains', 'sugar', 'salt'];
+  return commonEnglishWords.some(word => text.toLowerCase().includes(word));
 }
 
 async function translateText(text) {
   try {
-    const response = await fetch('https://libretranslate.de/translate', {
+    const res = await fetch('https://libretranslate.de/translate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -74,11 +87,10 @@ async function translateText(text) {
         format: 'text'
       })
     });
-
-    const data = await response.json();
+    const data = await res.json();
     return data.translatedText || text;
   } catch (err) {
-    console.warn('Translation failed, using original:', err);
+    console.error('Translation failed:', err);
     return text;
   }
 }
@@ -99,10 +111,11 @@ async function checkVeganStatus(barcode) {
 
       if (product.image_url) {
         resultImage.src = product.image_url;
+        resultImage.style.display = 'block';
       } else {
         resultImage.src = 'assets/Confused-ele.gif';
+        resultImage.style.display = 'block';
       }
-      resultImage.style.display = 'block';
 
       let ingredientsText = product.ingredients_text_en || '';
       if (!ingredientsText && product.ingredients_text) {
@@ -173,6 +186,7 @@ async function checkVeganStatus(barcode) {
     veganStatus.textContent = '';
     productIngredients.textContent = '';
     showModal('❌ Error fetching product data');
+    scanAgainBtn.style.display = 'inline-block';
   }
 }
 
@@ -190,11 +204,12 @@ function startScanner() {
       });
     },
     error => {
-      // ignore scan errors
+      // silent scan error
     }
   ).catch(err => {
     console.error("Camera start error:", err);
     showModal('❌ Unable to access camera');
+    scanAgainBtn.style.display = 'inline-block';
   });
 }
 
